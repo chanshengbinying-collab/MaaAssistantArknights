@@ -690,7 +690,14 @@ public class AsstProxy
         if (GpuOption.GetCurrent() is GpuOption.EnableOption x)
         {
             LogGpuStatus();
-            AsstSetStaticOption(AsstStaticOptionKey.GpuOCR, x.DeviceSelector);
+            var backend = ConfigFactory.Root.Gui.Performance.Backend;
+            var selector = backend switch
+            {
+                InferenceBackend.WebGPU => $"webgpu:{x.DeviceSelector}",
+                InferenceBackend.DirectML => $"directml:{x.DeviceSelector}",
+                _ => x.DeviceSelector,
+            };
+            AsstSetStaticOption(AsstStaticOptionKey.GpuOCR, selector);
         }
 
         // 上次更新失败的持久标志存在时跳过资源加载（安装可能处于半更新状态），视同资源损坏走修复流程；
@@ -2099,14 +2106,20 @@ public class AsstProxy
                             break;
 
                         case "StageTrader":
+                        case "StageTraderHD":
+                        case "StageTraderCR":
                             Instances.TaskQueueViewModel.AddLog(LocalizationHelper.GetString("Asst.Roguelike.Trader"), UiLogColor.TraderIS);
                             break;
 
                         case "StageSafeHouse":
+                        case "StageSafeHouseHD":
+                        case "StageSafeHouseCR":
                             Instances.TaskQueueViewModel.AddLog(LocalizationHelper.GetString("Asst.Roguelike.SafeHouse"), UiLogColor.SafehouseIS);
                             break;
 
                         case "StageFilterTruth":
+                        case "StageFilterTruthHD":
+                        case "StageFilterTruthCR":
                             Instances.TaskQueueViewModel.AddLog(LocalizationHelper.GetString("Asst.Roguelike.FilterTruth"), UiLogColor.TruthIS);
                             break;
 
